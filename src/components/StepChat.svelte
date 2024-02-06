@@ -1,11 +1,12 @@
 <script>
-    import { Input, Label, Spinner, ButtonGroup } from 'flowbite-svelte'
+    import { Input, Label, Spinner } from 'flowbite-svelte'
     import { appStatusInfo, setAppStatusError } from '../store';
     const { url, pages, id } = $appStatusInfo;
 
-    let answer = ''
-    let loading = false;
+    let answer = ""
+    let loading = false
 
+    //extracción de páginas como imágenes del PDF
     const numOfImagesToShow = Math.min(pages, 4)
     const images = Array.from( { length: numOfImagesToShow }, (_, i) => {
         const page = i + 1
@@ -13,41 +14,38 @@
         .replace('/upload', `/upload/w_400,h_540,c_fill,pg_${page}/`)
         .replace('.pdf', '.jpg')
     })
+
     const handleSubmit = async (event) => {
         event.preventDefault()
 
         loading = true
-
+        answer = ""
         const question = event.target.question.value
+
+        const searchParams = new URLSearchParams()
+        searchParams.append("id", id)
+        searchParams.append("question", question)
+
         try {
+            const eventSource = new EventSource(`/api/ask?${searchParams.toString()}`)
 
-            const res = await fetch("/api/ask", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                id,
-                question,
-            }),
-        })
+            eventSource.onmessage = (event) => {
+                loading = false
+                const incomingData = JSON.parse(event.data)
 
-        if(!res.ok) {
-            loading = false
-            console.error ("Error asking question")
-            return
-        } 
-        
-        const { answer: apiAnswer } = await res.json()
-        answer = apiAnswer
+                if (incomingData === "__END__") {
+                    eventSource.close()
+                    return
+                }
 
+                answer += incomingData
+            }
 
         } catch (e) {
             setAppStatusError()
         } finally {
             loading = false
         }
-        loading = false
     }
 </script>
 
@@ -76,4 +74,3 @@
     <p>{answer}</p>
 </div>
 {/if}
-```

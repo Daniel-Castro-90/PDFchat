@@ -1,5 +1,5 @@
 <script>
-    import { appStatus, setAppStatusLoading, setAppStatusError, setAppStatusChatMode  } from '../store.ts'
+    import { setAppStatusLoading, setAppStatusError, setAppStatusChatMode  } from '../store.ts'
     import Dropzone from "svelte-file-dropzone";
   
     let files = {
@@ -36,10 +36,7 @@
   </script>
 
   {#if files.accepted.length === 0}
-  <Dropzone
-  accept="application/pdf"
-  multiple={false} 
-  on:drop={handleFilesSelect}>
+  <Dropzone accept="application/pdf" multiple={false} on:drop={handleFilesSelect}>
   Soltá acá tu archivo.PDF
   </Dropzone>
   {/if}
