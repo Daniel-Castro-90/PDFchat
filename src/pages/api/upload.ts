@@ -8,7 +8,7 @@ import {
 cloudinary.config({ 
   cloud_name: 'do3hvqxmd', 
   api_key: '672489388764445', 
-  api_secret: 'JTW2cHKhGQbVAhOzPN5F_208By8'
+  api_secret: import.meta.env.CLOUD_SECRET
 });
 
 const uploadStream = async (buffer: Uint8Array, options: {

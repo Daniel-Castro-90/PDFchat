@@ -1,6 +1,6 @@
 <script>
     import { Input, Label, Spinner, ButtonGroup } from 'flowbite-svelte'
-    import { appStatusInfo } from '../store';
+    import { appStatusInfo, setAppStatusError } from '../store';
     const { url, pages, id } = $appStatusInfo;
 
     let answer = ''
@@ -19,8 +19,9 @@
         loading = true
 
         const question = event.target.question.value
+        try {
 
-        const res = await fetch("/api/ask", {
+            const res = await fetch("/api/ask", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -35,10 +36,17 @@
             loading = false
             console.error ("Error asking question")
             return
-        }
-
+        } 
+        
         const { answer: apiAnswer } = await res.json()
         answer = apiAnswer
+
+
+        } catch (e) {
+            setAppStatusError()
+        } finally {
+            loading = false
+        }
         loading = false
     }
 </script>
